@@ -1,0 +1,55 @@
+---
+# S3 Configuration
+- name: Configure AWS credentials for S3
+  template:
+    src: aws_credentials.j2
+    dest: /root/.aws/credentials
+    owner: root
+    group: root
+    mode: '0600'
+  when: 
+    - storage_type == 's3'
+    - aws_access_key != ''
+  no_log: true
+
+- name: Configure AWS config for S3
+  template:
+    src: aws_config.j2
+    dest: /root/.aws/config
+    owner: root
+    group: root
+    mode: '0644'
+  when: storage_type == 's3'
+
+# SSH Configuration
+- name: Generate SSH key for backup
+  openssh_keypair:
+    path: "{{ ssh_key_path }}"
+    type: ed25519
+    comment: "Backup system key"
+    owner: root
+    group: root
+    mode: '0600'
+  when: storage_type == 'ssh'
+
+- name: Display SSH public key
+  slurp:
+    src: "{{ ssh_key_path }}.pub"
+  register: ssh_pubkey
+  when: storage_type == 'ssh'
+
+- name: Show SSH public key for manual setup
+  debug:
+    msg: "Add this key to {{ ssh_user }}@{{ ssh_host }}:~/.ssh/authorized_keys - {{ ssh_pubkey.content | b64decode }}"
+  when: storage_type == 'ssh'
+
+# FTP Configuration
+- name: Create .netrc for FTP
+  template:
+    src: netrc.j2
+    dest: /root/.netrc
+    owner: root
+    group: root
+    mode: '0600'
+  when: storage_type == 'ftp'
+  no_log: true

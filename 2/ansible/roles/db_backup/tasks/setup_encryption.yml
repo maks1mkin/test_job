@@ -1,0 +1,16 @@
+---
+- name: Verify GPG installation
+  command: gpg --version
+  register: gpg_version
+  changed_when: false
+  when: encryption_method == 'gpg'
+
+- name: Verify OpenSSL installation
+  command: openssl version
+  register: openssl_version
+  changed_when: false
+  when: encryption_method == 'openssl'
+
+- name: Display encryption method
+  debug:
+    msg: "Encryption enabled with {{ encryption_method }}"

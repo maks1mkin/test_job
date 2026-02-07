@@ -1,0 +1,6 @@
+config.env
+logs/
+*.log
+.vault_pass
+*.gpg
+*.sql

@@ -1,0 +1,34 @@
+---
+- name: Install required packages
+  include_tasks: install_packages.yml
+  tags: [packages]
+
+- name: Create backup directories
+  include_tasks: setup_directories.yml
+  tags: [setup]
+
+- name: Deploy backup script
+  include_tasks: deploy_script.yml
+  tags: [script]
+
+- name: Configure database credentials
+  include_tasks: configure_credentials.yml
+  tags: [config, credentials]
+
+- name: Setup encryption
+  include_tasks: setup_encryption.yml
+  when: enable_encryption | bool
+  tags: [encryption]
+
+- name: Configure remote storage
+  include_tasks: configure_storage.yml
+  when: storage_type != 'local'
+  tags: [storage]
+
+- name: Setup cron job
+  include_tasks: setup_cron.yml
+  tags: [cron]
+
+- name: Verify setup
+  include_tasks: verify_setup.yml
+  tags: [verify, test]

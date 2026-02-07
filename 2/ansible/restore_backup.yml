@@ -1,0 +1,56 @@
+---
+- name: Restore PostgreSQL Database from Backup
+  hosts: db_servers
+  become: yes
+  
+  vars_prompt:
+    - name: backup_file
+      prompt: "Enter backup file path (e.g., /var/backups/databases/postgresql/backup.sql.gpg)"
+      private: no
+      
+    - name: target_database
+      prompt: "Enter target database name"
+      private: no
+      
+  tasks:
+    - name: Check if backup file exists
+      stat:
+        path: "{{ backup_file }}"
+      register: backup_stat
+      
+    - name: Fail if backup not found
+      fail:
+        msg: "Backup file not found: {{ backup_file }}"
+      when: not backup_stat.stat.exists
+      
+    - name: Decrypt backup if encrypted
+      command: >
+        gpg --decrypt --batch --passphrase "{{ encryption_password }}"
+        --output /tmp/restore.sql "{{ backup_file }}"
+      when: 
+        - enable_encryption | bool
+        - backup_file.endswith('.gpg')
+      no_log: true
+      
+    - name: Set restore file path
+      set_fact:
+        restore_file: "{{ '/tmp/restore.sql' if (enable_encryption | bool and backup_file.endswith('.gpg')) else backup_file }}"
+        
+    - name: Restore PostgreSQL database
+      postgresql_db:
+        name: "{{ target_database }}"
+        state: restore
+        target: "{{ restore_file }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        login_host: "{{ db_host }}"
+      
+    - name: Clean up temporary file
+      file:
+        path: /tmp/restore.sql
+        state: absent
+      when: enable_encryption | bool
+      
+    - name: Restore completed
+      debug:
+        msg: "Database {{ target_database }} restored successfully from {{ backup_file }}"

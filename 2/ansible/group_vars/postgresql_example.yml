@@ -1,0 +1,36 @@
+---
+# PostgreSQL Backup Configuration 
+
+# Database Settings
+db_type: postgresql
+db_host: localhost
+db_port: 5432
+db_name: myapp_production
+db_user: backup_user
+db_password: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+    # Run: ansible-vault encrypt_string 'your_password' --name 'db_password'
+
+# Backup Paths
+backup_script_path: /opt/db_backup
+local_backup_path: /var/backups/databases
+
+# Encryption
+enable_encryption: true
+encryption_method: gpg
+encryption_password: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+
+# Storage: SSH/SCP
+storage_type: ssh
+ssh_host: backup-server.company.com
+ssh_port: 22
+ssh_user: backup
+ssh_path: /backup/postgresql
+ssh_key_path: /root/.ssh/id_backup
+
+# Retention
+retention_days: 14
+
+# Schedule: Every 6 hours
+backup_schedule: "0 */6 * * *"

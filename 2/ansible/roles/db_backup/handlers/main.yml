@@ -1,0 +1,6 @@
+---
+- name: Restart backup service
+  systemd:
+    name: backup
+    state: restarted
+  when: false  # Placeholder handler

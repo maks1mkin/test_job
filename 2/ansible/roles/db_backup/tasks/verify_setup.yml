@@ -1,0 +1,52 @@
+---
+- name: Verify backup script exists
+  stat:
+    path: "{{ backup_script_path }}/db_backup.sh"
+  register: script_stat
+
+- name: Fail if script not found
+  fail:
+    msg: "Backup script not found at {{ backup_script_path }}/db_backup.sh"
+  when: not script_stat.stat.exists
+
+- name: Verify config file exists
+  stat:
+    path: "{{ backup_script_path }}/config.env"
+  register: config_stat
+
+- name: Fail if config not found
+  fail:
+    msg: "Config file not found at {{ backup_script_path }}/config.env"
+  when: not config_stat.stat.exists
+
+- name: Test database connection (PostgreSQL)
+  command: >
+    PGPASSWORD={{ db_password }} psql -h {{ db_host }} -p {{ db_port }}
+    -U {{ db_user }} -d {{ db_name }} -c "SELECT 1"
+  register: pgsql_test
+  changed_when: false
+  failed_when: false
+  no_log: true
+
+- name: Display connection test result
+  debug:
+    msg: "Database connection: {{ 'OK' if pgsql_test.rc == 0 else 'FAILED' }}"
+
+- name: Run test backup
+  command: "{{ backup_script_path }}/db_backup.sh"
+  register: test_backup
+  failed_when: false
+
+- name: Display test backup result
+  debug:
+    msg: "Test backup: {{ 'SUCCESS' if test_backup.rc == 0 else 'FAILED' }}"
+
+- name: Check for backup files
+  find:
+    paths: "{{ local_backup_path }}/postgresql"
+    patterns: "*.sql*"
+  register: backup_files
+
+- name: Display backup files count
+  debug:
+    msg: "Found {{ backup_files.files | length }} backup file(s)"

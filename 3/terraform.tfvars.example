@@ -1,0 +1,26 @@
+# AWS Configuration
+aws_region = "us-east-1"
+
+# Project Settings
+project_name = "backup-db"
+environment  = "production"
+
+# Network
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# EC2 Instance
+instance_type = "t3.micro"
+
+# SSH Access (ЗАМІНИТИИ на  публічну IP!)
+allowed_ssh_cidrs = ["0.0.0.0/0"]  # TODO: Обмежити!
+ssh_public_key    = ""
+
+# S3 Backup Retention
+backup_retention_days = 30
+
+# Additional Tags
+tags = {
+  ManagedBy = "Terraform"
+  Purpose   = "PostgreSQL Backup System"
+}

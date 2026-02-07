@@ -1,0 +1,24 @@
+---
+- name: Create backup script directory
+  file:
+    path: "{{ backup_script_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create local backup directory
+  file:
+    path: "{{ local_backup_path }}/postgresql"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Create logs directory
+  file:
+    path: "{{ backup_script_path }}/logs"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'

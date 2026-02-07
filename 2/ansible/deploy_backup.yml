@@ -1,0 +1,7 @@
+---
+- name: Deploy Database Backup System
+  hosts: db_servers
+  become: yes
+  
+  roles:
+    - db_backup

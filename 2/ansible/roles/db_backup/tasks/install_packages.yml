@@ -1,0 +1,49 @@
+---
+- name: Install PostgreSQL client
+  apt:
+    name: postgresql-client
+    state: present
+    update_cache: yes
+  when: 
+    - ansible_os_family == 'Debian'
+    - install_packages | bool
+
+- name: Install GnuPG for encryption
+  apt:
+    name: gnupg
+    state: present
+  when: 
+    - ansible_os_family == 'Debian'
+    - enable_encryption | bool
+    - encryption_method == 'gpg'
+
+- name: Install OpenSSL for encryption
+  apt:
+    name: openssl
+    state: present
+  when: 
+    - ansible_os_family == 'Debian'
+    - enable_encryption | bool
+    - encryption_method == 'openssl'
+
+- name: Install AWS CLI for S3
+  pip:
+    name: awscli
+    state: present
+  when: storage_type == 's3'
+
+- name: Install curl for FTP
+  apt:
+    name: curl
+    state: present
+  when: 
+    - ansible_os_family == 'Debian'
+    - storage_type == 'ftp'
+
+- name: Install rsync for SSH
+  apt:
+    name: rsync
+    state: present
+  when: 
+    - ansible_os_family == 'Debian'
+    - storage_type == 'ssh'

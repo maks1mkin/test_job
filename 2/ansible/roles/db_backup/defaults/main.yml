@@ -1,0 +1,51 @@
+---
+# Defaults for db_backup role
+
+# Database configuration
+db_host: localhost
+db_port: 5432
+db_name: mydatabase
+db_user: backup_user
+db_password: changeme
+
+# Backup paths
+backup_script_path: /opt/db_backup
+local_backup_path: /var/backups/databases
+
+# Encryption
+enable_encryption: true
+encryption_method: gpg            # gpg or openssl
+encryption_password: changeme_encryption
+
+# Storage
+storage_type: local               # local, s3, ftp, ssh
+
+# S3 configuration
+s3_bucket: ""
+s3_prefix: "db-backups/"
+s3_region: us-east-1
+aws_access_key: ""
+aws_secret_key: ""
+
+# FTP configuration
+ftp_host: ""
+ftp_port: 21
+ftp_user: ""
+ftp_password: ""
+ftp_path: "/backups/"
+
+# SSH configuration
+ssh_host: ""
+ssh_port: 22
+ssh_user: backup
+ssh_path: "/home/backup/databases"
+ssh_key_path: "{{ ansible_env.HOME }}/.ssh/id_backup"
+
+# Retention policy
+retention_days: 7
+
+# Cron schedule
+backup_schedule: "0 2 * * *"      # Daily at 2:00 AM
+
+# Package installation
+install_packages: true
